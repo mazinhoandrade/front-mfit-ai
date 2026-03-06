@@ -12,7 +12,7 @@ import Image from "next/image";
 import { ConsistencyTracker } from "@/app/_components/consistency-tracker";
 import { WorkoutDayCard } from "@/app/_components/workout-day-card";
 
-export default async function Home() {
+export default async function HomePage() {
   const session = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
