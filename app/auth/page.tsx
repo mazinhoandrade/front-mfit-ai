@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { SignInWithGoogle } from "./_components/sign-in-with-google";
 
+
 export default async function AuthPage() {
   const session = await authClient.getSession({
     fetchOptions: {
@@ -14,33 +15,36 @@ export default async function AuthPage() {
   if (session.data?.user) redirect("/");
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-between bg-black font-sans text-white overflow-hidden">
-      <div className="absolute inset-0 z-0">
+    <div className="relative flex min-h-svh flex-col bg-black">
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <Image
           src="/loginImage.png"
-          alt="Treino"
+          alt=""
           fill
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/10" />
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col items-center pt-12">
-        <h1 className="text-[38px] font-bold tracking-tighter italic leading-none">
+      <div className="relative z-10 flex justify-center pt-12">
+         <h1 className="text-4xl font-bold tracking-tighter italic leading-none text-primary">
           MFit.ai
         </h1>
       </div>
-      <div className="relative z-10 w-full max-w-md rounded-t-[20px] bg-primary px-5 pt-12 pb-10 flex flex-col items-center text-center gap-[60px]">
-        <div className="flex flex-col items-center gap-6">
-          <h2 className="text-[32px] font-semibold leading-[1.05] text-white">
+
+      <div className="flex-1" />
+
+      <div className="relative z-10 flex flex-col items-center gap-15 rounded-t-[20px] bg-primary px-5 pb-10 pt-12">
+        <div className="flex w-full flex-col items-center gap-6">
+          <h1 className="w-full text-center font-heading text-[32px] font-semibold leading-[1.05] text-primary-foreground">
             O app que vai transformar a forma como você treina.
-          </h2>
+          </h1>
+
           <SignInWithGoogle />
         </div>
 
-        <p className="text-[12px] opacity-70">
-          ©2026 Copyright MFIT.AI. Todos os direitos reservados
+        <p className="font-heading text-xs leading-[1.4] text-primary-foreground/70">
+          ©2026 Copyright FIT.AI. Todos os direitos reservados
         </p>
       </div>
     </div>
