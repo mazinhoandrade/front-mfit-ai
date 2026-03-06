@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import { Geist, Geist_Mono, Inter_Tight } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const inter = Inter_Tight({
   variable: "--font-inter",
@@ -20,8 +21,8 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
-  title: "Workout Planner",
-  description: "Planner de treinos",
+  title: "MFIT.AI",
+  description: "O app que vai transformar a forma como você treina.",
 };
 
 export default function RootLayout({
@@ -34,7 +35,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NuqsAdapter>
         {children}
+        </NuqsAdapter>
       </body>
     </html>
   );

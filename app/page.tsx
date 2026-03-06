@@ -44,7 +44,7 @@ export default async function Home() {
       <div className="relative flex h-[296px] shrink-0 flex-col items-start justify-between overflow-hidden rounded-b-[20px] px-5 pb-10 pt-5">
         <div className="absolute inset-0" aria-hidden="true">
           <Image
-            src="/figma-assets/homeImage.jpg"
+            src="/assets/homeImage.jpg"
             alt=""
             fill
             className="object-cover"

@@ -1,31 +1,41 @@
 import { redirect } from "next/navigation";
 import { authClient } from "@/app/_lib/auth-client";
 import { headers } from "next/headers";
-import { getWorkoutPlan, getHomeData, getMeTrainData } from "@/app/_lib/api/fetch-generated";
+import { getWorkoutDay, getHomeData, getMeTrainData } from "@/app/_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import Image from "next/image";
-import Link from "next/link";
-import { Goal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Calendar, Timer, Dumbbell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/app/_components/bottom-nav";
-import { WorkoutDayCard } from "@/app/_components/workout-day-card";
-import { RestDayCard } from "../../_components/rest-day-card";
-;
+import { BackButton } from "./_components/back-button";
+import { ExerciseCard } from "./_components/exercise-card";
+import { StartWorkoutButton } from "./_components/start-workout-button";
+import { CompleteWorkoutButton } from "./_components/complete-workout-button";
 
-const WEEKDAY_ORDER = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-];
+const WEEKDAY_LABELS: Record<string, string> = {
+  MONDAY: "SEGUNDA",
+  TUESDAY: "TERÇA",
+  WEDNESDAY: "QUARTA",
+  THURSDAY: "QUINTA",
+  FRIDAY: "SEXTA",
+  SATURDAY: "SÁBADO",
+  SUNDAY: "DOMINGO",
+};
 
-export default async function WorkoutPlanPage({
+const WEEKDAY_TITLE_LABELS: Record<string, string> = {
+  MONDAY: "Segunda",
+  TUESDAY: "Terça",
+  WEDNESDAY: "Quarta",
+  THURSDAY: "Quinta",
+  FRIDAY: "Sexta",
+  SATURDAY: "Sábado",
+  SUNDAY: "Domingo",
+};
+
+export default async function WorkoutDayPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; dayId: string }>;
 }) {
   const session = await authClient.getSession({
     fetchOptions: {
@@ -35,9 +45,9 @@ export default async function WorkoutPlanPage({
 
   if (!session.data?.user) redirect("/auth");
 
-  const { id } = await params;
-  const [workoutPlanData, homeData, trainData] = await Promise.all([
-    getWorkoutPlan(id),
+  const { id: workoutPlanId, dayId } = await params;
+  const [workoutDayData, homeData, trainData] = await Promise.all([
+    getWorkoutDay(workoutPlanId, dayId),
     getHomeData(dayjs().format("YYYY-MM-DD")),
     getMeTrainData(),
   ]);
@@ -47,75 +57,116 @@ export default async function WorkoutPlanPage({
     (trainData.status === 200 && !trainData.data);
   if (needsOnboarding) redirect("/onboarding");
 
-  if (workoutPlanData.status !== 200) redirect("/");
+  if (workoutDayData.status !== 200) redirect("/");
 
-  const { name, workoutDays } = workoutPlanData.data;
+  const {
+    name,
+    weekDay,
+    estimatedDurationInSeconds,
+    exercises,
+    sessions,
+    coverImageUrl,
+  } = workoutDayData.data;
 
-  const sortedDays = [...workoutDays].sort(
-    (a, b) =>
-      WEEKDAY_ORDER.indexOf(a.weekDay) - WEEKDAY_ORDER.indexOf(b.weekDay),
+  const durationInMinutes = Math.round(estimatedDurationInSeconds / 60);
+
+  const inProgressSession = sessions.find(
+    (s) => s.startedAt && !s.completedAt,
   );
+  const completedSession = sessions.find((s) => s.completedAt);
+  const hasInProgressSession = !!inProgressSession;
+  const hasCompletedSession = !!completedSession;
 
   return (
     <div className="flex min-h-svh flex-col bg-background pb-24">
-      <div className="relative flex h-[296px] shrink-0 flex-col items-start justify-between overflow-hidden rounded-b-[20px] px-5 pb-10 pt-5">
-        <div className="absolute inset-0" aria-hidden="true">
-          <Image
-            src="/workout-plan-banner.png"
-            alt=""
-            fill
-            className="object-cover"
-            priority
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(238deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)",
-            }}
-          />
-        </div>
+      <div className="flex items-center justify-between px-5 py-4">
+        <BackButton />
+        <h1 className="font-heading text-lg font-semibold text-foreground">
+          {hasInProgressSession || hasCompletedSession
+            ? "Treino de Hoje"
+            : WEEKDAY_TITLE_LABELS[weekDay]}
+        </h1>
+        <div className="size-6" />
+      </div>
 
-        <p
-          className="relative text-[22px] uppercase leading-[1.15] text-background"
-          style={{ fontFamily: "var(--font-anton)" }}
-        >
-          Fit.ai
-        </p>
+      <div className="px-5">
+        <div className="relative flex h-[200px] w-full flex-col items-start justify-between overflow-hidden rounded-xl p-5">
+          {coverImageUrl && (
+            <Image
+              src={coverImageUrl}
+              alt={name}
+              fill
+              className="pointer-events-none object-cover"
+            />
+          )}
+          <div className="absolute inset-0 bg-foreground/40" />
 
-        <div className="relative flex w-full items-end justify-between">
-          <div className="flex flex-col gap-3">
-            <Badge className="gap-1 rounded-full px-2.5 py-1.5 font-heading text-xs font-semibold uppercase">
-              <Goal className="size-4" />
-              {name}
-            </Badge>
-            <h1 className="font-heading text-2xl font-semibold leading-[1.05] text-background">
-              Plano de Treino
-            </h1>
+          <div className="relative">
+            <div className="flex items-center gap-1 rounded-full bg-background/16 px-2.5 py-1.5 backdrop-blur-sm">
+              <Calendar className="size-3.5 text-background" />
+              <span className="font-heading text-xs font-semibold uppercase text-background">
+                {WEEKDAY_LABELS[weekDay]}
+              </span>
+            </div>
+          </div>
+
+          <div className="relative flex w-full items-end justify-between">
+            <div className="flex flex-col gap-2">
+              <h2 className="font-heading text-2xl font-semibold leading-[1.05] text-background">
+                {name}
+              </h2>
+              <div className="flex items-start gap-2">
+                <div className="flex items-center gap-1">
+                  <Timer className="size-3.5 text-background/70" />
+                  <span className="font-heading text-xs text-background/70">
+                    {durationInMinutes}min
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Dumbbell className="size-3.5 text-background/70" />
+                  <span className="font-heading text-xs text-background/70">
+                    {exercises.length} exercícios
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {!hasInProgressSession && !hasCompletedSession && (
+              <StartWorkoutButton
+                workoutPlanId={workoutPlanId}
+                workoutDayId={dayId}
+              />
+            )}
+            {hasCompletedSession && (
+              <Button
+                variant="ghost"
+                disabled
+                className="rounded-full px-4 py-2 font-heading text-sm font-semibold text-background/70 hover:bg-transparent hover:text-background/70"
+              >
+                Concluído!
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 p-5">
-        {sortedDays.map((day) =>
-          day.isRest ? (
-            <RestDayCard key={day.id} weekDay={day.weekDay} />
-          ) : (
-            <Link
-              key={day.id}
-              href={`/workout-plans/${id}/days/${day.id}`}
-            >
-              <WorkoutDayCard
-                name={day.name}
-                weekDay={day.weekDay}
-                estimatedDurationInSeconds={day.estimatedDurationInSeconds}
-                exercisesCount={day.exercisesCount}
-                coverImageUrl={day.coverImageUrl}
-              />
-            </Link>
-          ),
-        )}
+      <div className="flex flex-col gap-3 px-5 pt-5">
+        {exercises
+          .sort((a, b) => a.order - b.order)
+          .map((exercise) => (
+            <ExerciseCard key={exercise.id} exercise={exercise} />
+          ))}
       </div>
+
+      {hasInProgressSession && inProgressSession && (
+        <div className="px-5 pt-5">
+          <CompleteWorkoutButton
+            workoutPlanId={workoutPlanId}
+            workoutDayId={dayId}
+            sessionId={inProgressSession.id}
+          />
+        </div>
+      )}
 
       <BottomNav activePage="calendar" />
     </div>
