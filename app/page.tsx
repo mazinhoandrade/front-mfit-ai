@@ -4,7 +4,20 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getHomeData } from "./_lib/api/fetch-generated";
 import dayjs from "dayjs";
+import { HomeBanner } from "@/components/HomeBanner";
+import { ConsistencyGrid } from "@/components/ConsistencyGrid";
+import { WorkoutCard } from "@/components/WorkoutCard";
+import { BottomNav } from "@/components/BottomNav";
 
+const WEEKDAY_MAP: Record<string, string> = {
+  MONDAY: "SEGUNDA",
+  TUESDAY: "TERÇA",
+  WEDNESDAY: "QUARTA",
+  THURSDAY: "QUINTA",
+  FRIDAY: "SEXTA",
+  SATURDAY: "SÁBADO",
+  SUNDAY: "DOMINGO",
+};
 
 export default async function Home() {
   const session = await authClient.getSession({
@@ -15,29 +28,40 @@ export default async function Home() {
   
   if (!session.data?.user) redirect("/auth");
 
-  const homeData = await getHomeData(dayjs().format("2026-03-05"));
+  const todayStr = dayjs().format("YYYY-MM-DD");
+  const response = await getHomeData(todayStr);
+  
+  // Basic error handling/empty state
+  if (response.status !== 200) {
+    return <div>Erro ao carregar dados</div>;
+  }
 
-
+  const { data } = response;
+  const todayWorkout = data.todayWorkoutDay;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        Mfit.ai
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Você está logado como {session.data?.user.name}
-          </h1>
-          <div>
-           
-          </div>
-          {/* <button
-            onClick={() => authClient.signOut()}
-            className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-          >
-            Sair
-          </button> */}
-        </div>
+    <div className="flex min-h-screen flex-col bg-primary font-inter-tight pb-24">
+      <HomeBanner userName={session.data.user.name} />
+      
+      <main className="flex flex-col gap-6 -mt-5 px-5 relative z-30">
+        <ConsistencyGrid 
+          streak={data.workoutStreak} 
+          consistencyByDay={data.consistencyByDay} 
+        />
+
+        {todayWorkout && (
+          <WorkoutCard
+            title="Treino de Hoje"
+            name={todayWorkout.name}
+            duration={`${Math.round(todayWorkout.estimatedDurationInSeconds / 60)}min`}
+            exercisesCount={todayWorkout.exercisesCount}
+            imageUrl={todayWorkout.coverImageUrl}
+            badge={WEEKDAY_MAP[todayWorkout.weekDay]}
+          />
+        )}
       </main>
+
+      <BottomNav />
     </div>
   );
 }
