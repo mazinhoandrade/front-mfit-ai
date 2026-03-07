@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Chatbot } from "./_components/chatbot";
+
 
 const inter = Inter_Tight({
   variable: "--font-inter",
@@ -37,6 +39,7 @@ export default function RootLayout({
       >
         <NuqsAdapter>
         {children}
+        <Chatbot />
         </NuqsAdapter>
       </body>
     </html>
