@@ -26,6 +26,13 @@ import { Badge } from "@/components/ui/badge";
 
 const SUGGESTED_MESSAGES = ["Monte meu plano de treino"];
 
+const ONBOARDING_MESSAGES = [
+  "Bem-vindo ao FIT.AI! 🎉",
+  "O app que vai transformar a forma como você treina. Aqui você monta seu plano de treino personalizado, acompanha sua evolução com estatísticas detalhadas e conta com uma IA disponível 24h para te guiar em cada exercício.",
+  "Tudo pensado para você alcançar seus objetivos de forma inteligente e consistente.",
+  "Vamos configurar seu perfil?",
+];
+
 const formSchema = z.object({
   message: z.string().min(1, {
     message: "A mensagem não pode estar vazia.",
@@ -39,7 +46,7 @@ function getUIMessageText(m: UIMessage) {
     .join("");
 }
 
-export function Chatbot() {
+export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" | "page"; customHeader?: React.ReactNode }) {
   const [chatParams, setChatParams] = useQueryStates({
     chat_open: parseAsBoolean.withDefault(false),
     chat_initial_message: parseAsString,
@@ -80,11 +87,18 @@ export function Chatbot() {
     form.reset();
   }
 
-  if (!chatParams.chat_open) return null;
+  if (mode === "overlay" && !chatParams.chat_open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm p-4">        
-      <div className="flex h-full max-h-[640px] w-full max-w-[361px] flex-col overflow-hidden rounded-[20px] bg-background shadow-xl">
+    <div className={cn(
+      mode === "overlay" 
+        ? "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm p-4"
+        : "flex h-full w-full flex-col bg-background"
+    )}>        
+      <div className={cn(
+        "flex h-full flex-col overflow-hidden bg-background",
+        mode === "overlay" ? "max-h-[640px] w-full max-w-[361px] rounded-[20px] shadow-xl" : "w-full"
+      )}>
         {/* Header */}
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-2">
@@ -99,14 +113,16 @@ export function Chatbot() {
               </div>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setChatParams({ chat_open: false })}
-            className="rounded-full"
-          >
-            <X className="size-6 text-foreground" />
-          </Button>
+          {customHeader || (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setChatParams({ chat_open: false })}
+              className="rounded-full"
+            >
+              <X className="size-6 text-foreground" />
+            </Button>
+          )}
         </div>
 
         <Separator />
@@ -116,9 +132,17 @@ export function Chatbot() {
           <div className="space-y-5 pb-4">
             {messages.length === 0 && (
               <div className="flex flex-col gap-3">
-                 <div className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground">
-                  Olá! Sou sua IA personal. Como posso ajudar com seu treino hoje?
-                </div>
+                {mode === "page" ? (
+                  ONBOARDING_MESSAGES.map((msg, i) => (
+                    <div key={i} className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground">
+                      {msg}
+                    </div>
+                  ))
+                ) : (
+                  <div className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground">
+                    Olá! Sou sua IA personal. Como posso ajudar com seu treino hoje?
+                  </div>
+                )}
               </div>
             )}
             {messages.map((m) => (
@@ -142,18 +166,30 @@ export function Chatbot() {
         <div className="p-5 border-t border-border flex flex-col gap-3">
           {messages.length === 0 && (
             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {SUGGESTED_MESSAGES.map((msg) => (
+              {mode === "page" ? (
                 <Badge
-                  key={msg}
-                  variant="secondary"
-                  className="cursor-pointer whitespace-nowrap bg-[#E2E9FE] px-4 py-2 text-sm text-foreground hover:bg-[#D5DFFE] transition-colors border-none font-normal"
+                  variant="default"
+                  className="cursor-pointer whitespace-nowrap bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90 transition-colors border-none font-normal rounded-xl"
                   onClick={() => {
-                    sendMessage({ text: msg });
+                    sendMessage({ text: "Começar!" });
                   }}
                 >
-                  {msg}
+                  Começar!
                 </Badge>
-              ))}
+              ) : (
+                SUGGESTED_MESSAGES.map((msg) => (
+                  <Badge
+                    key={msg}
+                    variant="secondary"
+                    className="cursor-pointer whitespace-nowrap bg-[#E2E9FE] px-4 py-2 text-sm text-foreground hover:bg-[#D5DFFE] transition-colors border-none font-normal"
+                    onClick={() => {
+                      sendMessage({ text: msg });
+                    }}
+                  >
+                    {msg}
+                  </Badge>
+                ))
+              )}
             </div>
           )}
 
