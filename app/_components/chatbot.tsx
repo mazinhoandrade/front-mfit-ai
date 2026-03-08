@@ -13,12 +13,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -46,7 +41,13 @@ function getUIMessageText(m: UIMessage) {
     .join("");
 }
 
-export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" | "page"; customHeader?: React.ReactNode }) {
+export function Chatbot({
+  mode = "overlay",
+  customHeader,
+}: {
+  mode?: "overlay" | "page";
+  customHeader?: React.ReactNode;
+}) {
   const [chatParams, setChatParams] = useQueryStates({
     chat_open: parseAsBoolean.withDefault(false),
     chat_initial_message: parseAsString,
@@ -54,7 +55,8 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
-      api: "/ai",
+      api: "/api/backend/ai/",
+      credentials: "include",
     }),
   });
 
@@ -80,7 +82,12 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
       sendMessage({ text: chatParams.chat_initial_message });
       setChatParams({ chat_initial_message: null });
     }
-  }, [chatParams.chat_open, chatParams.chat_initial_message, sendMessage, setChatParams]);
+  }, [
+    chatParams.chat_open,
+    chatParams.chat_initial_message,
+    sendMessage,
+    setChatParams,
+  ]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     sendMessage({ text: values.message });
@@ -90,23 +97,31 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
   if (mode === "overlay" && !chatParams.chat_open) return null;
 
   return (
-    <div className={cn(
-      mode === "overlay" 
-        ? "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-        : "flex h-full w-full flex-col bg-background"
-    )}>        
-      <div className={cn(
-        "flex h-full flex-col overflow-hidden bg-background",
-        mode === "overlay" ? "max-h-[640px] w-full max-w-[361px] rounded-[20px] shadow-xl" : "w-full"
-      )}>
+    <div
+      className={cn(
+        mode === "overlay"
+          ? "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm p-4"
+          : "flex h-full w-full flex-col bg-background",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-full flex-col overflow-hidden bg-background",
+          mode === "overlay"
+            ? "max-h-[640px] overflow-y-auto w-full max-w-[361px] rounded-[20px] shadow-xl"
+            : "w-full",
+        )}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border border-primary/10">  
-                <Sparkles className="size-5 text-primary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border border-primary/10">
+              <Sparkles className="size-5 text-primary" />
             </div>
             <div className="flex flex-col">
-              <span className="text-base font-semibold text-foreground leading-tight tracking-tight">Coach AI</span>
+              <span className="text-base font-semibold text-foreground leading-tight tracking-tight">
+                Coach AI
+              </span>
               <div className="flex items-center gap-1">
                 <div className="h-2 w-2 rounded-full bg-[#24D500]" />
                 <span className="text-xs text-primary font-normal">Online</span>
@@ -134,13 +149,17 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
               <div className="flex flex-col gap-3">
                 {mode === "page" ? (
                   ONBOARDING_MESSAGES.map((msg, i) => (
-                    <div key={i} className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground">
+                    <div
+                      key={i}
+                      className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground"
+                    >
                       {msg}
                     </div>
                   ))
                 ) : (
                   <div className="max-w-[85%] self-start rounded-xl bg-muted p-3 text-sm text-foreground">
-                    Olá! Sou sua IA personal. Como posso ajudar com seu treino hoje?
+                    Olá! Sou sua IA personal. Como posso ajudar com seu treino
+                    hoje?
                   </div>
                 )}
               </div>
@@ -152,10 +171,10 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
                   "flex max-w-[85%] flex-col gap-1 rounded-xl p-3 text-sm",
                   m.role === "user"
                     ? "self-end bg-primary text-primary-foreground"
-                    : "self-start bg-muted text-foreground"
+                    : "self-start bg-muted text-foreground",
                 )}
               >
-                  <Streamdown>{getUIMessageText(m)}</Streamdown>
+                <Streamdown>{getUIMessageText(m)}</Streamdown>
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -194,7 +213,10 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex items-center gap-2"
+            >
               <FormField
                 control={form.control}
                 name="message"
@@ -213,7 +235,11 @@ export function Chatbot({ mode = "overlay", customHeader }: { mode?: "overlay" |
               <Button
                 type="submit"
                 size="icon"
-                disabled={status === "submitted" || status === "streaming" || !form.watch("message")?.trim()}
+                disabled={
+                  status === "submitted" ||
+                  status === "streaming" ||
+                  !form.watch("message")?.trim()
+                }
                 className="h-11 w-11 shrink-0 rounded-full bg-primary text-primary-foreground disabled:opacity-50 transition-opacity"
               >
                 <Send className="size-5" />
