@@ -11,6 +11,7 @@ import { Flame } from "lucide-react";
 import Image from "next/image";
 import { ConsistencyTracker } from "@/app/_components/consistency-tracker";
 import { WorkoutDayCard } from "@/app/_components/workout-day-card";
+import { RestDayCard } from "./workout-plans/[id]/_components/rest-day-card";
 
 export default async function HomePage() {
   const session = await authClient.getSession({
@@ -38,7 +39,6 @@ export default async function HomePage() {
 
   const { todayWorkoutDay, workoutStreak, consistencyByDay } = homeData.data;
   const userName = session.data.user.name?.split(" ")[0] ?? "";
-
   return (
     <div className="flex min-h-svh flex-col bg-background pb-24">
       <div className="relative flex h-[296px] shrink-0 flex-col items-start justify-between overflow-hidden rounded-b-[20px] px-5 pb-10 pt-5">
@@ -88,9 +88,9 @@ export default async function HomePage() {
           <h2 className="font-heading text-lg font-semibold text-foreground">
             Consistência
           </h2>
-          <button className="font-heading text-xs text-primary">
+          <Link href="/stats" className="font-heading text-xs text-primary">
             Ver histórico
-          </button>
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
@@ -115,11 +115,13 @@ export default async function HomePage() {
             <h2 className="font-heading text-lg font-semibold text-foreground">
               Treino de Hoje
             </h2>
-            <button className="font-heading text-xs text-primary">
+            <Link href={`/workout-plans/${todayWorkoutDay.workoutPlanId}`} className="font-heading text-xs text-primary">
               Ver treinos
-            </button>
+            </Link>
           </div>
-
+        {todayWorkoutDay.isRest ? (
+          <RestDayCard key={todayWorkoutDay.id} weekDay={todayWorkoutDay.weekDay} />
+        ): (
           <Link
             href={`/workout-plans/${todayWorkoutDay.workoutPlanId}/days/${todayWorkoutDay.id}`}
           >
@@ -133,6 +135,7 @@ export default async function HomePage() {
               coverImageUrl={todayWorkoutDay.coverImageUrl}
             />
           </Link>
+        )}
         </div>
       )}
 
