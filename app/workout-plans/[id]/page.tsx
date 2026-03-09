@@ -10,16 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/app/_components/bottom-nav";
 import { WorkoutDayCard } from "@/app/_components/workout-day-card";
 import { RestDayCard } from "./_components/rest-day-card";
+import getOrderDay from "@/app/utils/get-order-day";
 
-const WEEKDAY_ORDER = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-];
 
 export default async function WorkoutPlanPage({
   params,
@@ -49,11 +41,7 @@ export default async function WorkoutPlanPage({
   if (workoutPlanData.status !== 200) redirect("/");
 
   const { name, workoutDays } = workoutPlanData.data;
-
-  const sortedDays = [...workoutDays].sort(
-    (a, b) =>
-      WEEKDAY_ORDER.indexOf(a.weekDay) - WEEKDAY_ORDER.indexOf(b.weekDay),
-  );
+  const sortedDays = getOrderDay(workoutDays);
 
   return (
     <div className="flex min-h-svh flex-col bg-background pb-24">
