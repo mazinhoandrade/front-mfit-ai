@@ -69,13 +69,34 @@ export function Chatbot({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior,
+        block: "end",
+      });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (messages.length > 0) {
+      // Use "auto" behavior during streaming to stay at the bottom without lag
+      const behavior = status === "streaming" ? "auto" : "smooth";
+      scrollToBottom(behavior);
+      
+      // Secondary check to ensure we're at the bottom after dynamic content (like Streamdown) renders
+      const timer = setTimeout(() => scrollToBottom(behavior), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, status]);
+
+  // Scroll to bottom when chat opens
+  useEffect(() => {
+    if (chatParams.chat_open) {
+      const timer = setTimeout(() => scrollToBottom("auto"), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [chatParams.chat_open]);
 
   useEffect(() => {
     if (chatParams.chat_open && chatParams.chat_initial_message) {
@@ -108,7 +129,7 @@ export function Chatbot({
         className={cn(
           "flex h-full flex-col overflow-hidden bg-background",
           mode === "overlay"
-            ? "max-h-[640px] overflow-y-auto w-full max-w-[361px] rounded-[20px] shadow-xl"
+            ? "h-full max-h-[640px] w-full max-w-[361px] rounded-[20px] shadow-xl"
             : "w-full",
         )}
       >
@@ -143,7 +164,7 @@ export function Chatbot({
         <Separator />
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-5">
+        <ScrollArea className="flex-1 min-h-0 p-5 overscroll-contain">
           <div className="space-y-5 pb-4">
             {messages.length === 0 && (
               <div className="flex flex-col gap-3">

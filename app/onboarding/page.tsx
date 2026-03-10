@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function OnboardingPage() {
   return (
-    <div className="flex h-svh w-full flex-col bg-background overflow-y-auto">
+    <div className="flex h-dvh w-full flex-col bg-background overflow-hidden">
       <Chatbot
         mode="page" 
         customHeader={
