@@ -4,7 +4,7 @@ import "./globals.css";
 import { Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Chatbot } from "./_components/chatbot";
-
+import { Suspense } from "react";
 
 const inter = Inter_Tight({
   variable: "--font-inter",
@@ -21,7 +21,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "MFIT.AI",
   description: "O app que vai transformar a forma como você treina.",
@@ -37,10 +36,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NuqsAdapter>
-        {children}
-        <Chatbot />
-        </NuqsAdapter>
+        <Suspense fallback={null}>
+          <NuqsAdapter>
+            {children}
+            <Chatbot />
+          </NuqsAdapter>
+        </Suspense>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { SignInWithGoogle } from "./_components/sign-in-with-google";
+import { Suspense } from "react";
 
 
 export default async function AuthPage() {
@@ -40,7 +41,9 @@ export default async function AuthPage() {
             O app que vai transformar a forma como você treina.
           </h1>
 
-          <SignInWithGoogle />
+          <Suspense fallback={<div>Carregando...</div>}>
+            <SignInWithGoogle />
+          </Suspense>
         </div>
 
         <p className="font-heading text-xs leading-[1.4] text-primary-foreground/70">
