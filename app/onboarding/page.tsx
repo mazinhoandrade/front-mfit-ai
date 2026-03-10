@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default function OnboardingPage() {
   return (
-    <div className="flex h-svh w-full flex-col bg-background">
-      <Chatbot 
+    <div className="flex h-svh w-full flex-col bg-background overflow-y-auto">
+      <Chatbot
         mode="page" 
         customHeader={
           <Link href="/">
