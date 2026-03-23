@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import {
-    completeWorkoutSession,
+  finishWorkoutSession,
   startWorkoutSession,
 } from "@/app/_lib/api/fetch-generated";
 
@@ -18,9 +18,19 @@ export async function completeWorkoutAction(
   workoutPlanId: string,
   workoutDayId: string,
   sessionId: string,
+  exercises: {
+    exerciseId: string;
+    restTimeInSeconds: number;
+    sets: {
+      order: number;
+      reps?: number;
+      weight?: number;
+    }[];
+  }[],
 ) {
-  await completeWorkoutSession(workoutPlanId, workoutDayId, sessionId, {
+  await finishWorkoutSession(workoutPlanId, workoutDayId, sessionId, {
     completedAt: new Date().toISOString(),
+    exercises: exercises,
   });
   revalidatePath(`/workout-plans/${workoutPlanId}/days/${workoutDayId}`);
 }

@@ -1,32 +1,23 @@
 "use client";
 
-import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { completeWorkoutAction } from "../_actions";
 
 interface CompleteWorkoutButtonProps {
   workoutPlanId: string;
   workoutDayId: string;
   sessionId: string;
+  onComplete?: () => void;
+  isPending?: boolean;
 }
 
 export function CompleteWorkoutButton({
-  workoutPlanId,
-  workoutDayId,
-  sessionId,
+  onComplete,
+  isPending,
 }: CompleteWorkoutButtonProps) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleComplete = () => {
-    startTransition(async () => {
-      await completeWorkoutAction(workoutPlanId, workoutDayId, sessionId);
-    });
-  };
-
   return (
     <Button
       variant="outline"
-      onClick={handleComplete}
+      onClick={onComplete}
       disabled={isPending}
       className="w-full rounded-full py-3 font-heading text-sm font-semibold"
     >

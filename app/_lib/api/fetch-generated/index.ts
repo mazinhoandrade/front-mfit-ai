@@ -116,9 +116,12 @@ export type ListWorkoutPlans200ItemWorkoutDaysItemExercisesItem = {
   id: string;
   order: number;
   name: string;
-  sets: number;
-  reps: number;
-  restTimeInSeconds: number;
+  /** @nullable */
+  sets: number | null;
+  /** @nullable */
+  reps: number | null;
+  /** @nullable */
+  restTimeInSeconds: number | null;
 };
 
 export type ListWorkoutPlans200ItemWorkoutDaysItem = {
@@ -163,17 +166,30 @@ export const CreateWorkoutPlanBodyWorkoutDaysItemWeekDay = {
   SUNDAY: "SUNDAY",
 } as const;
 
+export type CreateWorkoutPlanBodyWorkoutDaysItemExercisesItemMetricType =
+  (typeof CreateWorkoutPlanBodyWorkoutDaysItemExercisesItemMetricType)[keyof typeof CreateWorkoutPlanBodyWorkoutDaysItemExercisesItemMetricType];
+
+export const CreateWorkoutPlanBodyWorkoutDaysItemExercisesItemMetricType = {
+  WEIGHT_REPS: "WEIGHT_REPS",
+  REPS_ONLY: "REPS_ONLY",
+  TIME: "TIME",
+  DISTANCE_TIME: "DISTANCE_TIME",
+} as const;
+
 export type CreateWorkoutPlanBodyWorkoutDaysItemExercisesItem = {
   /** @minimum 0 */
   order: number;
   /** @minLength 1 */
   name: string;
-  /** @minimum 1 */
-  sets: number;
-  /** @minimum 1 */
-  reps: number;
-  /** @minimum 1 */
-  restTimeInSeconds: number;
+  /** @nullable */
+  sets?: number | null;
+  /** @nullable */
+  reps?: number | null;
+  /** @nullable */
+  suggestedWeight?: number | null;
+  metricType: CreateWorkoutPlanBodyWorkoutDaysItemExercisesItemMetricType;
+  /** @nullable */
+  restTimeInSeconds?: number | null;
 };
 
 export type CreateWorkoutPlanBodyWorkoutDaysItem = {
@@ -206,17 +222,30 @@ export const CreateWorkoutPlan201WorkoutDaysItemWeekDay = {
   SUNDAY: "SUNDAY",
 } as const;
 
+export type CreateWorkoutPlan201WorkoutDaysItemExercisesItemMetricType =
+  (typeof CreateWorkoutPlan201WorkoutDaysItemExercisesItemMetricType)[keyof typeof CreateWorkoutPlan201WorkoutDaysItemExercisesItemMetricType];
+
+export const CreateWorkoutPlan201WorkoutDaysItemExercisesItemMetricType = {
+  WEIGHT_REPS: "WEIGHT_REPS",
+  REPS_ONLY: "REPS_ONLY",
+  TIME: "TIME",
+  DISTANCE_TIME: "DISTANCE_TIME",
+} as const;
+
 export type CreateWorkoutPlan201WorkoutDaysItemExercisesItem = {
   /** @minimum 0 */
   order: number;
   /** @minLength 1 */
   name: string;
-  /** @minimum 1 */
-  sets: number;
-  /** @minimum 1 */
-  reps: number;
-  /** @minimum 1 */
-  restTimeInSeconds: number;
+  /** @nullable */
+  sets?: number | null;
+  /** @nullable */
+  reps?: number | null;
+  /** @nullable */
+  suggestedWeight?: number | null;
+  metricType: CreateWorkoutPlan201WorkoutDaysItemExercisesItemMetricType;
+  /** @nullable */
+  restTimeInSeconds?: number | null;
 };
 
 export type CreateWorkoutPlan201WorkoutDaysItem = {
@@ -311,9 +340,12 @@ export type GetWorkoutDay200ExercisesItem = {
   order: number;
   /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
   workoutDayId: string;
-  sets: number;
-  reps: number;
-  restTimeInSeconds: number;
+  /** @nullable */
+  sets: number | null;
+  /** @nullable */
+  reps: number | null;
+  /** @nullable */
+  restTimeInSeconds: number | null;
 };
 
 export type GetWorkoutDay200WeekDay =
@@ -397,31 +429,53 @@ export type StartWorkoutSession500 = {
   code: string;
 };
 
-export type CompleteWorkoutSessionBody = {
-  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
-  completedAt: string;
+export type FinishWorkoutSessionBodyExercisesItemSetsItem = {
+  order: number;
+  weight?: number;
+  reps?: number;
+  durationInSeconds?: number;
+  distanceInMeters?: number;
 };
 
-export type CompleteWorkoutSession200 = {
+export type FinishWorkoutSessionBodyExercisesItem = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  exerciseId: string;
+  restTimeInSeconds: number;
+  sets: FinishWorkoutSessionBodyExercisesItemSetsItem[];
+};
+
+export type FinishWorkoutSessionBody = {
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
+  completedAt?: string;
+  exercises: FinishWorkoutSessionBodyExercisesItem[];
+};
+
+export type FinishWorkoutSession200 = {
   /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
   id: string;
   /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
   startedAt: string;
+  completed: boolean;
   /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
   completedAt: string;
 };
 
-export type CompleteWorkoutSession401 = {
+export type FinishWorkoutSession401 = {
   error: string;
   code: string;
 };
 
-export type CompleteWorkoutSession404 = {
+export type FinishWorkoutSession404 = {
   error: string;
   code: string;
 };
 
-export type CompleteWorkoutSession500 = {
+export type FinishWorkoutSession409 = {
+  error: string;
+  code: string;
+};
+
+export type FinishWorkoutSession500 = {
   error: string;
   code: string;
 };
@@ -472,15 +526,12 @@ export type GetStats500 = {
  */
 export type GetMeTrainData200 = {
   userId: string;
-  userName: string;
-  weightInGrams: number;
-  heightInCentimeters: number;
-  age: number;
-  /**
-   * @minimum 0
-   * @maximum 100
-   */
-  bodyFatPercentage: number;
+  name: string;
+  email: string;
+  weightInGrams?: number;
+  heightInCentimeters?: number;
+  age?: number;
+  bodyFatPercentage?: number;
 } | null;
 
 export type GetMeTrainData401 = {
@@ -494,25 +545,12 @@ export type GetMeTrainData500 = {
 };
 
 export type UpsertMeBody = {
-  /** @minimum 0 */
-  weightInGrams: number;
-  /** @minimum 0 */
-  heightInCentimeters: number;
-  /** @minimum 0 */
-  age: number;
-  /**
-   * @minimum 0
-   * @maximum 100
-   */
-  bodyFatPercentage: number;
+  name: string;
 };
 
 export type UpsertMe200 = {
   userId: string;
-  weightInGrams: number;
-  heightInCentimeters: number;
-  age: number;
-  bodyFatPercentage: number;
+  name: string;
 };
 
 export type UpsertMe401 = {
@@ -521,6 +559,110 @@ export type UpsertMe401 = {
 };
 
 export type UpsertMe500 = {
+  error: string;
+  code: string;
+};
+
+export type GetMyMetrics200MetricsItem = {
+  id: string;
+  /** @minimum 0 */
+  weightInGrams?: number;
+  /** @minimum 0 */
+  heightInCentimeters?: number;
+  /** @minimum 0 */
+  age?: number;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  bodyFatPercentage?: number;
+  createdAt: string;
+};
+
+export type GetMyMetrics200 = {
+  metrics: GetMyMetrics200MetricsItem[];
+};
+
+export type GetMyMetrics401 = {
+  error: string;
+  code: string;
+};
+
+export type GetMyMetrics500 = {
+  error: string;
+  code: string;
+};
+
+export type UpsertBodyMetricBody = {
+  weightInGrams?: number;
+  heightInCentimeters?: number;
+  age?: number;
+  bodyFatPercentage?: number;
+};
+
+export type UpsertBodyMetric200 = {
+  id: string;
+  weightInGrams?: number;
+  heightInCentimeters?: number;
+  age?: number;
+  bodyFatPercentage?: number;
+  createdAt: string;
+};
+
+export type UpsertBodyMetric401 = {
+  error: string;
+  code: string;
+};
+
+export type UpsertBodyMetric500 = {
+  error: string;
+  code: string;
+};
+
+export type GetMyDiets200DietsItem = {
+  id: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+export type GetMyDiets200 = {
+  diets: GetMyDiets200DietsItem[];
+};
+
+export type GetMyDiets401 = {
+  error: string;
+  code: string;
+};
+
+export type GetMyDiets500 = {
+  error: string;
+  code: string;
+};
+
+export type UpsertBodyDietBody = {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+export type UpsertBodyDiet200 = {
+  id: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  createdAt: string;
+};
+
+export type UpsertBodyDiet401 = {
+  error: string;
+  code: string;
+};
+
+export type UpsertBodyDiet500 = {
   error: string;
   code: string;
 };
@@ -937,66 +1079,72 @@ export const startWorkoutSession = async (
 };
 
 /**
- * @summary Update a workout session
+ * @summary Finish workout session
  */
-export type completeWorkoutSessionResponse200 = {
-  data: CompleteWorkoutSession200;
+export type finishWorkoutSessionResponse200 = {
+  data: FinishWorkoutSession200;
   status: 200;
 };
 
-export type completeWorkoutSessionResponse401 = {
-  data: CompleteWorkoutSession401;
+export type finishWorkoutSessionResponse401 = {
+  data: FinishWorkoutSession401;
   status: 401;
 };
 
-export type completeWorkoutSessionResponse404 = {
-  data: CompleteWorkoutSession404;
+export type finishWorkoutSessionResponse404 = {
+  data: FinishWorkoutSession404;
   status: 404;
 };
 
-export type completeWorkoutSessionResponse500 = {
-  data: CompleteWorkoutSession500;
+export type finishWorkoutSessionResponse409 = {
+  data: FinishWorkoutSession409;
+  status: 409;
+};
+
+export type finishWorkoutSessionResponse500 = {
+  data: FinishWorkoutSession500;
   status: 500;
 };
 
-export type completeWorkoutSessionResponseSuccess =
-  completeWorkoutSessionResponse200 & {
+export type finishWorkoutSessionResponseSuccess =
+  finishWorkoutSessionResponse200 & {
     headers: Headers;
   };
-export type completeWorkoutSessionResponseError = (
-  | completeWorkoutSessionResponse401
-  | completeWorkoutSessionResponse404
-  | completeWorkoutSessionResponse500
+export type finishWorkoutSessionResponseError = (
+  | finishWorkoutSessionResponse401
+  | finishWorkoutSessionResponse404
+  | finishWorkoutSessionResponse409
+  | finishWorkoutSessionResponse500
 ) & {
   headers: Headers;
 };
 
-export type completeWorkoutSessionResponse =
-  | completeWorkoutSessionResponseSuccess
-  | completeWorkoutSessionResponseError;
+export type finishWorkoutSessionResponse =
+  | finishWorkoutSessionResponseSuccess
+  | finishWorkoutSessionResponseError;
 
-export const getCompleteWorkoutSessionUrl = (
+export const getFinishWorkoutSessionUrl = (
   workoutPlanId: string,
   workoutDayId: string,
   sessionId: string,
 ) => {
-  return `/workout-plans/${workoutPlanId}/days/${workoutDayId}/sessions/${sessionId}`;
+  return `/workout-plans/${workoutPlanId}/days/${workoutDayId}/sessions/${sessionId}/finish`;
 };
 
-export const completeWorkoutSession = async (
+export const finishWorkoutSession = async (
   workoutPlanId: string,
   workoutDayId: string,
   sessionId: string,
-  completeWorkoutSessionBody: CompleteWorkoutSessionBody,
+  finishWorkoutSessionBody: FinishWorkoutSessionBody,
   options?: RequestInit,
-): Promise<completeWorkoutSessionResponse> => {
-  return customFetch<completeWorkoutSessionResponse>(
-    getCompleteWorkoutSessionUrl(workoutPlanId, workoutDayId, sessionId),
+): Promise<finishWorkoutSessionResponse> => {
+  return customFetch<finishWorkoutSessionResponse>(
+    getFinishWorkoutSessionUrl(workoutPlanId, workoutDayId, sessionId),
     {
       ...options,
-      method: "PATCH",
+      method: "PUT",
       headers: { "Content-Type": "application/json", ...options?.headers },
-      body: JSON.stringify(completeWorkoutSessionBody),
+      body: JSON.stringify(finishWorkoutSessionBody),
     },
   );
 };
@@ -1177,5 +1325,191 @@ export const upsertMe = async (
     method: "PUT",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(upsertMeBody),
+  });
+};
+
+/**
+ * @summary Get my body metrics history
+ */
+export type getMyMetricsResponse200 = {
+  data: GetMyMetrics200;
+  status: 200;
+};
+
+export type getMyMetricsResponse401 = {
+  data: GetMyMetrics401;
+  status: 401;
+};
+
+export type getMyMetricsResponse500 = {
+  data: GetMyMetrics500;
+  status: 500;
+};
+
+export type getMyMetricsResponseSuccess = getMyMetricsResponse200 & {
+  headers: Headers;
+};
+export type getMyMetricsResponseError = (
+  | getMyMetricsResponse401
+  | getMyMetricsResponse500
+) & {
+  headers: Headers;
+};
+
+export type getMyMetricsResponse =
+  | getMyMetricsResponseSuccess
+  | getMyMetricsResponseError;
+
+export const getGetMyMetricsUrl = () => {
+  return `/me/metrics`;
+};
+
+export const getMyMetrics = async (
+  options?: RequestInit,
+): Promise<getMyMetricsResponse> => {
+  return customFetch<getMyMetricsResponse>(getGetMyMetricsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+/**
+ * @summary Create or get latest body metric
+ */
+export type upsertBodyMetricResponse200 = {
+  data: UpsertBodyMetric200;
+  status: 200;
+};
+
+export type upsertBodyMetricResponse401 = {
+  data: UpsertBodyMetric401;
+  status: 401;
+};
+
+export type upsertBodyMetricResponse500 = {
+  data: UpsertBodyMetric500;
+  status: 500;
+};
+
+export type upsertBodyMetricResponseSuccess = upsertBodyMetricResponse200 & {
+  headers: Headers;
+};
+export type upsertBodyMetricResponseError = (
+  | upsertBodyMetricResponse401
+  | upsertBodyMetricResponse500
+) & {
+  headers: Headers;
+};
+
+export type upsertBodyMetricResponse =
+  | upsertBodyMetricResponseSuccess
+  | upsertBodyMetricResponseError;
+
+export const getUpsertBodyMetricUrl = () => {
+  return `/me/metrics`;
+};
+
+export const upsertBodyMetric = async (
+  upsertBodyMetricBody: UpsertBodyMetricBody,
+  options?: RequestInit,
+): Promise<upsertBodyMetricResponse> => {
+  return customFetch<upsertBodyMetricResponse>(getUpsertBodyMetricUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertBodyMetricBody),
+  });
+};
+
+/**
+ * @summary Get my body diets history
+ */
+export type getMyDietsResponse200 = {
+  data: GetMyDiets200;
+  status: 200;
+};
+
+export type getMyDietsResponse401 = {
+  data: GetMyDiets401;
+  status: 401;
+};
+
+export type getMyDietsResponse500 = {
+  data: GetMyDiets500;
+  status: 500;
+};
+
+export type getMyDietsResponseSuccess = getMyDietsResponse200 & {
+  headers: Headers;
+};
+export type getMyDietsResponseError = (
+  | getMyDietsResponse401
+  | getMyDietsResponse500
+) & {
+  headers: Headers;
+};
+
+export type getMyDietsResponse =
+  | getMyDietsResponseSuccess
+  | getMyDietsResponseError;
+
+export const getGetMyDietsUrl = () => {
+  return `/me/diets`;
+};
+
+export const getMyDiets = async (
+  options?: RequestInit,
+): Promise<getMyDietsResponse> => {
+  return customFetch<getMyDietsResponse>(getGetMyDietsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+/**
+ * @summary Create or get latest body diet
+ */
+export type upsertBodyDietResponse200 = {
+  data: UpsertBodyDiet200;
+  status: 200;
+};
+
+export type upsertBodyDietResponse401 = {
+  data: UpsertBodyDiet401;
+  status: 401;
+};
+
+export type upsertBodyDietResponse500 = {
+  data: UpsertBodyDiet500;
+  status: 500;
+};
+
+export type upsertBodyDietResponseSuccess = upsertBodyDietResponse200 & {
+  headers: Headers;
+};
+export type upsertBodyDietResponseError = (
+  | upsertBodyDietResponse401
+  | upsertBodyDietResponse500
+) & {
+  headers: Headers;
+};
+
+export type upsertBodyDietResponse =
+  | upsertBodyDietResponseSuccess
+  | upsertBodyDietResponseError;
+
+export const getUpsertBodyDietUrl = () => {
+  return `/me/diets`;
+};
+
+export const upsertBodyDiet = async (
+  upsertBodyDietBody: UpsertBodyDietBody,
+  options?: RequestInit,
+): Promise<upsertBodyDietResponse> => {
+  return customFetch<upsertBodyDietResponse>(getUpsertBodyDietUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertBodyDietBody),
   });
 };

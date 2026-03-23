@@ -8,9 +8,8 @@ import { Calendar, Timer, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/app/_components/bottom-nav";
 import { BackButton } from "./_components/back-button";
-import { ExerciseCard } from "./_components/exercise-card";
 import { StartWorkoutButton } from "./_components/start-workout-button";
-import { CompleteWorkoutButton } from "./_components/complete-workout-button";
+import { WorkoutTracker } from "./_components/workout-tracker";
 
 const WEEKDAY_LABELS: Record<string, string> = {
   MONDAY: "SEGUNDA",
@@ -151,22 +150,13 @@ export default async function WorkoutDayPage({
       </div>
 
       <div className="flex flex-col gap-3 px-5 pt-5">
-        {exercises
-          .sort((a, b) => a.order - b.order)
-          .map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} />
-          ))}
+        <WorkoutTracker
+          workoutPlanId={workoutPlanId}
+          workoutDayId={dayId}
+          exercises={exercises}
+          sessions={sessions}
+        />
       </div>
-
-      {hasInProgressSession && inProgressSession && (
-        <div className="px-5 pt-5">
-          <CompleteWorkoutButton
-            workoutPlanId={workoutPlanId}
-            workoutDayId={dayId}
-            sessionId={inProgressSession.id}
-          />
-        </div>
-      )}
 
       <BottomNav activePage="calendar" />
     </div>
